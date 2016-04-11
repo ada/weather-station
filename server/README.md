@@ -1,4 +1,5 @@
-#Classified
+#Weather
+The following commands should be run in the Windows Console application.
 
 ###Requirements
 ```
@@ -27,6 +28,12 @@ supervisor -e server  	 //Starts server
 supervisor -e js server  //Start server and watch js files for changes
 ```
 
+###Test
+```
+localhost:7777/api/weather //Should list the weather entries
+localhost:7777/api/weather/post //should create a new random weathe entry
+localhost:7777/ //should present the local client application made by Angular
+```
 
 ###API
 All communication to the API should have `Content-Type: application/json; charset=utf-8`
