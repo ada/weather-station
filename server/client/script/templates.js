@@ -12,7 +12,7 @@ angular.module("/view/footer.html", []).run(["$templateCache", function($templat
 
 angular.module("/view/main.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("/view/main.html",
-    "<div class=\"container\">{{test}}</div>");
+    "<div class=\"container\">{{test}}<div google-chart chart=\"chartObject\" style=\"height:600px; width:100%\"></div></div>");
 }]);
 
 angular.module("/view/navbar.html", []).run(["$templateCache", function($templateCache) {
