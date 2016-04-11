@@ -2,12 +2,14 @@
 The following commands should be run in the Windows Console application.
 
 ###Requirements
+Install the following applications:
 ```
 1. NodeJs
 2. MongoDB
 3. npm package manager  
 ```
 
+After installing the above requirements you can run the following commands from the root directory. 
 ###Installation
 ```
 1. npm install
