@@ -1,8 +1,7 @@
 var mongo = require('mongoose');
-var config = require('./config');
 
 module.exports = function(app) {
-	mongo.connect(config.mongo);
+	mongo.connect('mongodb://u1:p1@ds013250.mlab.com:13250/w1');
 	mongo.connection.on('error', console.error.bind(console, 'Mongo connection error:'));
 	global.mongo = mongo;
 };

@@ -1,6 +1,5 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var config = require('./config');
 var rootPath = require('path').normalize(__dirname + '/../..');
 
 
