@@ -30,7 +30,7 @@ void setup()
   sendCommand("AT+CIPSTATUS", DEFAULT_TIMEOUT, DEBUG); // Not data mode
   //AT+CIPMUX=1
   //AT+CIPSTART=0,"TCP","192.168.0.15",7777
-  //AT+CIPSTART=0,"TCP","google.com",80
+  //AT+CIPSTART=0,"TCP","superuser.com",80
 }
 
 void loop()
