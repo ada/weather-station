@@ -12,10 +12,10 @@ angular.module("/view/footer.html", []).run(["$templateCache", function($templat
 
 angular.module("/view/main.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("/view/main.html",
-    "<div class=\"container\">{{test}}<div google-chart chart=\"chartObject\" style=\"height:600px; width:100%\"></div></div>");
+    "<div class=\"container\"><form class=\"navbar-form\" ng-submit=\"newSearch()\"><div class=\"form-group\"><label for=\"device\">Device ID:</label><input type=\"text\" ng-model=\"searchOptions.device\" class=\"form-control\" placeholder=\"ws1\"></div><div class=\"form-group\"><label for=\"device\">Date:</label><input type=\"text\" ng-model=\"searchOptions.from\" class=\"form-control\" placeholder=\"From\"> <input type=\"text\" ng-model=\"searchOptions.to\" class=\"form-control\" placeholder=\"To\"></div><div class=\"form-group\"><label for=\"device\">Sort:</label><input type=\"text\" ng-model=\"searchOptions.sort\" class=\"form-control\" placeholder=\"-created\"></div><div class=\"form-group\"><label for=\"submit\"></label><button type=\"submit\" ng-click=\"newSearch()\" ng-disabled=\"loading\">Fetch</button></div><div class=\"form-group\" ng-show=\"error\" style=\"color: red\"><label>Error</label><pre style=\"display: inline-flex\">{{error | json}}</pre></div></form><hr><table style=\"text-aling:left\"><thead><th width=\"10%\">Date</th><th width=\"10%\">Temperature</th><th width=\"10%\">Humidity</th></thead><tbody><tr ng-repeat=\"w in weatherData\"><td ng-bind=\"w.created | date:'yyyy-MM-dd HH:mm:ss'\"></td><td ng-bind=\"w.temperature\"></td><td ng-bind=\"w.humidity\"></td></tr></tbody></table></div>");
 }]);
 
 angular.module("/view/navbar.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("/view/navbar.html",
-    "<div class=\"container\"><h1>Weather station 1</h1></div>");
+    "<div class=\"container\"><h1>Weather Station Data Viewer</h1></div>");
 }]);

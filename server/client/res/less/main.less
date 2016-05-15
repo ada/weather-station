@@ -1,6 +1,52 @@
-.container{
+body {
+  color: #333;
+  font-family: arial;
+  font-size: 12px;
+  background-color: #e7e7e7;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: inherit;
+}
+.container {
   width: 800px;
-  border: 1px solid;
   margin: 0px auto;
-  padding: 15px;
+  padding: 5px;
+  border: 1px solid #dbdbdb;
+  background: #fff;
+}
+tr:nth-child(even) {
+  background-color: #fff;
+}
+tr:hover {
+  background-color: #e6e6e6;
+}
+hr {
+  height: 1px;
+  color: #dbdbdb;
+  background: #dbdbdb;
+  font-size: 0;
+  border: 0;
+  margin: 10px 0px;
+}
+th {
+  min-width: 150px;
+  text-align: left;
+}
+
+.form-group{
+  padding: 5px 10px;
+}
+
+.form-control{
+  border: 1px solid #b4b4b4;
+}
+
+label{
+  display: inline-block;
+  width: 100px;
 }

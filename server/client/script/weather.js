@@ -1,36 +1,28 @@
 angular.module('weather',["googlechart"])
 
-.controller("main", ['$scope','Restangular', function($scope, Restangular){
+.controller("main", ['$scope','Restangular', '$location', function($scope, Restangular, $location){
+	$scope.$on('$routeUpdate', function(){
+		$scope.newSearch();
+	});
+	$scope.searchOptions = $location.search();
 
-	$scope.test = "Hello from Angular";
-	$scope.chartObject = {}; //https://bouil.github.io/angular-google-chart/#/generic/LineChart
-	$scope.chartObject.type = 'LineChart';
-	$scope.chartObject.options = {
-			'title': 'Västerås'
+	$scope.newSearch = function(){
+		$scope.error = null;
+		$location.path('/').search($.param($scope.searchOptions));
+		$scope.loading = true;
+		$scope.weatherData = [];
+		Restangular.all('weather').getList($location.search()).then(
+			function(r) {
+				$scope.weatherData = r;
+				$scope.loading = false;
+			}, function(err){
+				$scope.loading = false;
+				$scope.error = err;
+			});
 	};
 
 
-	Restangular.all('weather').getList().then(function(r) {
-	  $scope.w = r;
-		var latest = r[0];
-		var rows = [];
-		var cols = [
-	      {id: "t", label: "Topping", type: "string"},
-	      {id: "s", label: "Temperature", type: "number"}
-	  ];
-
-		angular.forEach(r, function(e){
-			rows.push({c: [
-          {v: e.created},
-          {v: e.temperature},
-      ]})
-		});
-
-
-		$scope.chartObject.data = {"cols": cols, "rows": rows};
-
-	});
-
+	$scope.newSearch();
 
 
 

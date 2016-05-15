@@ -19,6 +19,7 @@ angular.module('weatherStation', ['ngRoute','restangular','templates-main','weat
         title: 'Weather',
         templateUrl: '/view/main.html',
         controller: 'main',
+        reloadOnSearch: false
       })
       .otherwise({
         redirectTo: '/404'

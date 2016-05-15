@@ -5,8 +5,19 @@ var weatherSchema = new Schema({
     default: Date.now,
     required:true
   },
-  temperature : Number,
-  humidity : Number
+
+  temperature : {
+    type : Number,
+    required:true
+  },
+  humidity : {
+    type : Number,
+    required:true
+  },
+  device : {
+    type : String,
+    required:true
+  },
 
 });
 
