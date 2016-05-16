@@ -4,7 +4,7 @@
 #define DEFAULT_TIMEOUT 1000
 
 TinyGPSPlus gps;
-String cmd;
+char c;
 
 void setup()
 {
@@ -21,29 +21,36 @@ void setup()
 
 void loop()
 {
-  /*
-   * Read raw data from GPS
-   * if(Serial3.available())
-    while(Serial3.available())
-      Serial.write(Serial3.read());
-  */
   
   while (Serial3.available() > 0)
-    if (gps.encode(Serial3.read()))
-      displayInfo();
-  if (millis() > 5000 && gps.charsProcessed() < 10)
   {
-    Serial.println(F("No GPS detected"));
-    while(true);
+    c = Serial3.read(); 
+    //Serial.write(c);
+    
+    if (gps.encode(c))
+    {
+      Serial.println();
+      displayInfo();
+      delay(3000);
+    }
+    
+    if (millis() > 5000 && gps.charsProcessed() < 10)
+    {
+      Serial.println(F("No GPS detected"));
+      while(true);
+    }
+    
   }
+
+  //Serial.println("---");
   
-  delay(1000);
+  
 }
 
 void displayInfo()
 {
   Serial.print("Location: "); 
-  if (gps.location.isValid())
+  if (1 && gps.location.isValid())
   {
     Serial.print(gps.location.lat(), 6);
     Serial.print(",");
@@ -55,7 +62,7 @@ void displayInfo()
   }
 
   Serial.print(" Date/Time: ");
-  if (gps.date.isValid())
+  if (1 && gps.date.isValid())
   {
     Serial.print(gps.date.month());
     Serial.print("/");
@@ -69,7 +76,7 @@ void displayInfo()
   }
 
   Serial.print(" ");
-  if (gps.time.isValid())
+  if (1 && gps.time.isValid())
   {
     if (gps.time.hour() < 10) Serial.print("0");
     Serial.print(gps.time.hour());
@@ -87,7 +94,10 @@ void displayInfo()
   {
     Serial.print("INVALID");
   }
-
+  
   Serial.println();
+  Serial.print("Sattelites in use: ");
+  Serial.println(gps.satellites.value());
+  
 }
 
