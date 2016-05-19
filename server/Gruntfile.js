@@ -1,39 +1,28 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-
 		less: {
-			production: {
+			main:{
 				options: {
 					paths: ["less"],
 					cleancss: true,
 				},
 				files: {
-					"build/app.css": "client/res/less/main.less"
+					"build/app.css": "client/less/bootstrap.less"
 				}
-
 			}
 		},
 
 		copy: {
 			main: {
 				nonull: true,
-				cwd: 'client/res/',
-				src: '**',
+				cwd: 'client/',
+				src: '*.html',
 				dest: 'build/',
 				flatten: true,
-				expand:true,
-			},
-			fonts : {
-				cwd: 'client/res/font/',
-				src: '**',
-				dest: 'build/font/',
-				expand:true,
+				expand: true,
 			}
 		},
-
-
-
 
 		html2js: {
 			options: {
@@ -51,8 +40,6 @@ module.exports = function(grunt) {
 				dest: 'client/script/templates.js'
 			},
 		},
-
-
 
 		uglify: {
 			libs: {
@@ -81,15 +68,22 @@ module.exports = function(grunt) {
 					dest: 'build/app.js'
 				}]
 			}
+		},
+
+		clean: {
+			builddir : ['build/*'],
+		  templates: ['client/script/templates.js']
 		}
 	});
 
+grunt.loadNpmTasks('grunt-html2js');
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-contrib-less');
-grunt.loadNpmTasks('grunt-html2js');
 grunt.loadNpmTasks('grunt-contrib-copy');
+grunt.loadNpmTasks('grunt-contrib-clean');
+
+//grunt.registerTask('clean', ['clean:templates', 'clean:builddir']);
 grunt.registerTask('libs', ['uglify:libs']);
-grunt.registerTask('build', ['less', 'copy:main', 'copy:fonts', 'html2js', 'uglify', 'less']);
-grunt.registerTask('default', ['less','html2js', 'uglify:app']);
+grunt.registerTask('default', ['less:main', 'copy:main', 'html2js', 'uglify:app', 'clean:templates']);
 
 };

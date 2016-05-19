@@ -1,0 +1,119 @@
+  <div class="container-fluid container-tablet">
+  <div class="row text-center">
+    <p style="text-transform: capitalize;">{{currentDateTime | amDateFormat:'dddd, Do MMMM YYYY, HH:mm:ss'}}</span>
+  </div>
+
+  <div class="row text-center">
+    <h1 class="wh1" style="margin:0">23°C</h1>
+    <p>
+      Västerås, Sweden
+    </p>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Luft</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Temperatur:</td><td ng-bind=""></td></tr>
+            <tr><td>Luftfuktighet:</td><td ng-bind=""></td></tr>
+            <tr><td>Lufttryck:</td><td ng-bind=""></td></tr>
+            <tr><td>Methane:</td><td ng-bind=""></td></tr>
+            <tr><td>Buthane:</td><td ng-bind=""></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Nederbörd</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Just nu:</td><td ng-bind="+'mm'"></td></tr>
+            <tr><td>Senaste timmen:</td><td ng-bind="+'mm'"></td></tr>
+            <tr><td>Senaste dygn:</td><td ng-bind="+'mm'"></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Vind</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Hastighet:</td><td ng-bind=""></td></tr>
+            <tr><td>Riktning:</td><td ng-bind=""></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Sol</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Soluppgång:</td><td ng-bind="sun.rise"></td></tr>
+            <tr><td>Solnedgång:</td><td ng-bind="sun.set"></td></tr>
+            <tr><td>Ljusast:</td><td ng-bind="sun.solarNoon"></td></tr>
+            <tr><td>Altitude:</td><td ng-bind="sun.altitude"></td></tr>
+            <tr><td>Ultraviolett:</td><td ng-bind="sun.uv"></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Måne</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Månfas:</td><td ng-bind="moon.phase"></td></tr>
+            <tr><td>Uppgång:</td><td ng-bind="moon.rise"></td></tr>
+            <tr><td>Nedgång:</td><td ng-bind="moon.set"></td></tr>
+            <tr><td>Avstånd:</td><td ng-bind="moon.distance +' km'"></td></tr>
+            <tr><td>Synlighet:</td><td ng-bind="moon.fraction +'%'"></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class = "panel-title">Enhet</h3>
+        </div>
+        <div class="panel-body no-padding">
+          <table class="table tablew">
+            <tr><td>Identitet:</td><td ng-bind="device.id"></td></tr>
+            <tr><td>Latitude:</td><td ng-bind="device.lat"></td></tr>
+            <tr><td>Longitude:</td><td ng-bind="device.lng"></td></tr>
+            <tr><td>Adress:</td><td ng-bind="device.addr"></td></tr>
+            <tr><td>Health:</td><td ng-bind="device.health"></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+</div>

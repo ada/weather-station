@@ -1,4 +1,4 @@
-angular.module('weatherStation', ['ngRoute','restangular','templates-main','weather'])
+angular.module('weatherStation', ['ngRoute','restangular','templates-main','weather', 'angularMoment'])
 
 .config(['$routeProvider', '$locationProvider', 'RestangularProvider', function ($routeProvider, $locationProvider, RestangularProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
@@ -17,6 +17,12 @@ angular.module('weatherStation', ['ngRoute','restangular','templates-main','weat
       })
       .when('/', {
         title: 'Weather',
+        templateUrl: '/view/main2.html',
+        controller: 'main',
+        reloadOnSearch: false
+      })
+      .when('/w', {
+        title: 'Weather',
         templateUrl: '/view/main.html',
         controller: 'main',
         reloadOnSearch: false
@@ -24,4 +30,6 @@ angular.module('weatherStation', ['ngRoute','restangular','templates-main','weat
       .otherwise({
         redirectTo: '/404'
       });
-}]);
+}]).run(function(amMoment) {
+    amMoment.changeLocale('sv');
+});
