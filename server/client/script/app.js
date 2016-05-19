@@ -1,6 +1,7 @@
-angular.module('weatherStation', ['ngRoute','restangular','templates-main','weather', 'angularMoment'])
+var app = angular.module('weatherStation', ['ngRoute','restangular','templates-main','angularMoment', 'googlechart']);
 
-.config(['$routeProvider', '$locationProvider', 'RestangularProvider', function ($routeProvider, $locationProvider, RestangularProvider) {
+app.config(['$routeProvider', '$locationProvider', 'RestangularProvider',
+  function ($routeProvider, $locationProvider, RestangularProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
   RestangularProvider.setBaseUrl(
     location.protocol + '//' + location.hostname +
@@ -15,21 +16,22 @@ angular.module('weatherStation', ['ngRoute','restangular','templates-main','weat
           title: 'Not found',
           templateUrl: '/view/404.html'
       })
-      .when('/', {
-        title: 'Weather',
-        templateUrl: '/view/main2.html',
-        controller: 'main',
+      .when('/graph', {
+        title: 'Vädergrafer',
+        templateUrl: '/view/graph.html',
+        controller: 'graph',
         reloadOnSearch: false
       })
-      .when('/w', {
+      .when('/', {
         title: 'Weather',
-        templateUrl: '/view/main.html',
-        controller: 'main',
-        reloadOnSearch: false
+        templateUrl: '/view/weather.html',
+        controller: 'weather'
       })
       .otherwise({
         redirectTo: '/404'
       });
-}]).run(function(amMoment) {
+}]);
+
+app.run(function(amMoment) {
     amMoment.changeLocale('sv');
 });

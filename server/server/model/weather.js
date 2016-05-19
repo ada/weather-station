@@ -14,10 +14,19 @@ var weatherSchema = new Schema({
     type : Number,
     required:true
   },
+  co2 : {
+    type : Number,
+    required:true
+  },
+  uv : {
+    type : Number,
+    required:true
+  },
   device : {
     type : String,
     required:true
   },
+
 
 });
 

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid container-tablet">
 
   <form class="navbar-form" ng-submit="newSearch()">
 
@@ -9,13 +9,13 @@
 
     <div class="form-group">
       <label for="device">Date: </label>
-      <input type="text" ng-model="searchOptions.from" class="form-control" placeholder="From">
-      <input type="text" ng-model="searchOptions.to" class="form-control" placeholder="To">
+      <input type="text" ng-model="searchOptions.from" class="form-control" placeholder="From 'YYYY-MM-DD'">
+      <input type="text" ng-model="searchOptions.to" class="form-control" placeholder="To 'YYYY-MM-DD'">
     </div>
 
     <div class="form-group">
       <label for="device">Sort: </label>
-      <input type="text" ng-model="searchOptions.sort" class="form-control" placeholder="-created">
+      <input type="text" ng-model="searchOptions.sort" class="form-control" placeholder="-created, temperature">
     </div>
 
     <div class="form-group">
@@ -32,19 +32,18 @@
 
   <hr>
 
-  <table style="text-aling:left">
-    <thead>
-      <th width="10%">Date</th>
-      <th width="10%">Temperature</th>
-      <th width="10%">Humidity</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="w in weatherData">
-        <td ng-bind="w.created | date:'yyyy-MM-dd HH:mm:ss'"></td>
-        <td ng-bind="w.temperature"></td>
-        <td ng-bind="w.humidity"></td>
-      </tr>
-    </tbody>
-  </table>
-
+  <div class="row">
+    <div class="col-md-6">
+      <div google-chart chart="CDTemperature"></div>
+    </div>
+    <div class="col-md-6">
+      <div google-chart chart="CDHumidity"></div>
+    </div>
+    <div class="col-md-6">
+      <div google-chart chart="CDUV"></div>
+    </div>
+    <div class="col-md-6">
+      <div google-chart chart="CDCO2"></div>
+    </div>
+  </div>
 </div>

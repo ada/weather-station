@@ -9,8 +9,18 @@
     <title>Weather Station</title>
   </head>
   <body>
+    <a href="/graph">Grafer</a> - <a href="/">Väder</a>
     <div ng-view></div>
-    <div ng-include="'/view/footer.html'"></div>
+
+    <div class="clearfix"></div>
+    <div class="container-fluid container-tablet" >
+      <hr>
+      <div class="row text-center">
+        <img src="http://i.imgur.com/V0oiDcy.png" alt="MDH logo" width="150px"/><br>
+        <small>	&#169; 2016 - Mälardalen University. Västerås, Sweden</small>
+      </div>
+    </div>
+
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>

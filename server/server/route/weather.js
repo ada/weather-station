@@ -27,7 +27,7 @@ app.get('/', function(req, res) {
       so[search.sort] = 1 * order;
     }
   } else {
-    so['created'] = -1;
+    so['created'] = 1;
   }
 
   if (search.from) {
@@ -40,19 +40,9 @@ app.get('/', function(req, res) {
 
   if (!search.from && !search.to) {
     var time = new Date();
-    time.setDate(time.getDate()-7); //7 days ago
+    time.setDate(time.getDate()-7); //90 days ago
     fo['created'] =  {'$gte' : time }
   }
-
-  //Pagination
-  if (!search.page)
-      search.page = 1; //Default page
-
-  if (!search.limit || search.limit > 25)
-      search.limit = 25; //default limit
-
-  po.limit = search.limit;
-  po.skip = (search.page - 1) * po.limit;
 
   //Return options
   ro.__v = 0;
@@ -68,8 +58,36 @@ app.get('/', function(req, res) {
 
 });
 
+app.get('/dummy', function(req, res) {
+  for (var i = 0; i < 100; i++) {
+    var d = new Date();
+    d.setDate(d.getDate()-i);
+
+    var w = new Weather({
+      created : d,
+      temperature : random(15,26),
+      humidity : random(25, 80),
+      co2 : random(100,1500),
+      uv : random(10,100),
+      device:'ws1'
+    });
+
+    w.save(function(err, r) {
+      if (err)
+        res.status(400).send(err);
+      else
+        res.status(201).send("created");
+    });
+  }
+
+  function random(min, max) {
+      return Math.random() * (max - min) + min;
+  }
+
+});
+
 app.get('/post', function(req, res) {
-  var w = new Weather(req.query); //req.body
+  var w = new Weather(req.query);
   w.save(function(err, r) {
     if (err)
       res.status(400).send(err);

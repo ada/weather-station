@@ -1,22 +1,22 @@
-angular.module('weather',["googlechart"])
-
-.controller("main", ['$scope','Restangular', '$location', '$interval', function($scope, Restangular, $location, $interval){
+app.controller("weather", ['$scope','Restangular', '$location', '$interval', function($scope, Restangular, $location, $interval){
 
 	angular.element(document).ready(function () {
+		var lat = 59.6;
+		var lng = 16.54;
+
 		//Date time
 		$scope.currentDateTime = Date.now();
 		$interval(function () {
 			$scope.currentDateTime = Date.now(); }, 1000);
 
-		//Device
-		var lat = 59.6;
-		var lng = 16.54;
-		$scope.device = {
-			id : "WS1",
-			health : "Excellent",
-			lat : lat,
-			lng : lng,
-			addr: "NA"
+		//Air
+		$scope.air = {
+			temperature: 12,
+			humidity:50,
+			pressure : 12,
+			methane : 155,
+			buthane : 89,
+			co2 : 1990
 		}
 
 		// Sun
@@ -36,7 +36,7 @@ angular.module('weather',["googlechart"])
 		var moon3 = SunCalc.getMoonTimes(new Date(), lat, lng);
 		$scope.moon = {
 			distance : Number(moon.distance).toFixed(2),
-			altitude : moon.altitude,
+			altitude : Number(moon.altitude).toFixed(2),
 			fraction : Number(moon2.fraction).toFixed(2)*100,
 			phase : moonPhaseToString(moon2.phase),
 			rise : moon3.rise.getHours() + ':' + moon3.rise.getMinutes(),
@@ -44,30 +44,17 @@ angular.module('weather',["googlechart"])
 			alwaysUp : moon3.alwaysUp,
 			alwaysDown : moon3.alwaysDown
 		}
+
+		//Device
+		$scope.device = {
+			id : "WS1",
+			health : "Excellent",
+			lat : lat,
+			lng : lng,
+			addr: "NA"
+		}
+
   });
-
-	$scope.$on('$routeUpdate', function(){
-		$scope.newSearch();
-	});
-	$scope.searchOptions = $location.search();
-
-	$scope.newSearch = function(){
-		$scope.error = null;
-		$location.path('/').search($.param($scope.searchOptions));
-		$scope.loading = true;
-		$scope.weatherData = [];
-		Restangular.all('weather').getList($location.search()).then(
-			function(r) {
-				$scope.weatherData = r;
-				$scope.loading = false;
-			}, function(err){
-				$scope.loading = false;
-				$scope.error = err;
-			});
-	};
-
-
-	$scope.newSearch();
 
 	function moonPhaseToString(mp){
 		var str;

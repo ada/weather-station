@@ -20,11 +20,12 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Temperatur:</td><td ng-bind=""></td></tr>
-            <tr><td>Luftfuktighet:</td><td ng-bind=""></td></tr>
-            <tr><td>Lufttryck:</td><td ng-bind=""></td></tr>
-            <tr><td>Methane:</td><td ng-bind=""></td></tr>
-            <tr><td>Buthane:</td><td ng-bind=""></td></tr>
+            <tr><td>Temperatur:</td><td ng-bind="air.temperature + '°C'"></td></tr>
+            <tr><td>Luftfuktighet:</td><td ng-bind="air.humidity + '%'"></td></tr>
+            <tr><td>Lufttryck:</td><td ng-bind="air.pressure + 'Pa'"></td></tr>
+            <tr><td>Methane:</td><td ng-bind="air.methane + 'PPM'"></td></tr>
+            <tr><td>Buthane:</td><td ng-bind="air.buthane + 'PPM'"></td></tr>
+            <tr><td>CO<sub>2</sub>:</td><td ng-bind="air.co2 + 'PPM'"></td></tr>
           </table>
         </div>
       </div>
@@ -37,7 +38,7 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Just nu:</td><td ng-bind="+'mm'"></td></tr>
+            <tr><td>Just nu:</td><td ng-bind="+'mm/s'"></td></tr>
             <tr><td>Senaste timmen:</td><td ng-bind="+'mm'"></td></tr>
             <tr><td>Senaste dygn:</td><td ng-bind="+'mm'"></td></tr>
           </table>
@@ -52,7 +53,7 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Hastighet:</td><td ng-bind=""></td></tr>
+            <tr><td>Hastighet:</td><td ng-bind="+'m/s'"></td></tr>
             <tr><td>Riktning:</td><td ng-bind=""></td></tr>
           </table>
         </div>
