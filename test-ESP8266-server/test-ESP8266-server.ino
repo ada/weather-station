@@ -1,113 +1,235 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266HTTPClient.h>
+#include <stdio.h>
+#include <string.h>
 
-const char* ssid = "Tenda_27EE90";
-const char* password = "glassspoon";
+#define Data_Block_Value_Size_Byte 4
 
-ESP8266WebServer server (8266);
 
-void Put_Client (WiFiClient c)
+struct Data_Block
 {
-  Serial.print ("remoteIP");
-  Serial.println (c.remoteIP ());
-  Serial.print ("remotePort");
-  Serial.println (c.remotePort ());
-  Serial.print ("localIPeIP");
-  Serial.println (c.localIP ());
-  Serial.print ("localPort");
-  Serial.println (c.localPort ());
+  char Type;
+  union
+  {
+    char Value [4];
+    float Value_Float;
+    int Value_Int;
+  };
+};
+
+
+WiFiServer server (8266);
+
+WiFiClient Client_Database [1];
+
+IPAddress Client_Database_IP;
+uint16_t Client_Database_Port = 333;
+
+
+
+void Serial_Put_Data_Block (struct Data_Block * Item)
+{
+  Serial.println ("Data_Block");
+  Serial.print ("Type ");
+  Serial.println (Item->Type);
+  Serial.print ("Value ");
+  Serial.write (Item->Value, Data_Block_Value_Size_Byte);
+  Serial.println ();
+  Serial.print ("Value_Float ");
+  Serial.println (Item->Value_Float);
+  Serial.print ("Value_Int ");
+  Serial.println (Item->Value_Int);
 }
 
-void handleRoot ()
+void Put_Client (WiFiClient * Item)
 {
-  Put_Client (server.client ());
-  server.send(200, "text/plain", "hello from esp8266!");
+  Serial.print ("remoteIP: ");
+  Serial.println (Item->remoteIP ());
+  Serial.print ("remotePort: ");
+  Serial.println (Item->remotePort ());
+  Serial.print ("localIP: ");
+  Serial.println (Item->localIP ());
+  Serial.print ("localPort: ");
+  Serial.println (Item->localPort ());
 }
 
-void handleNotFound ()
+void Connect_WiFi ()
 {
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i=0; i<server.args(); i++){
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send (404, "text/plain", message);
-}
-
-void setup(void)
-{
-  Serial.begin (115200);
-  WiFi.begin (ssid, password);
-  Serial.println ("");
-
-  // Wait for connection
-  while (WiFi.status () != WL_CONNECTED)
+  const char* ssid = "Tenda_27EE90";
+  const char* password = "glassspoon";
+  WiFi.begin(ssid, password);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
-    Serial.print (".");
+    Serial.print(".");
   }
-  Serial.println ("");
-  Serial.print ("Connected to ");
-  Serial.println (ssid);
+  Serial.println("");
+  Serial.println("WiFi connected");
   Serial.print ("IP address: ");
   Serial.println (WiFi.localIP());
   Serial.print ("subnetMask: ");
   Serial.println (WiFi.subnetMask());
   Serial.print ("gatewayIP: ");
   Serial.println (WiFi.gatewayIP());
-
+  /*
   if (MDNS.begin ("esp8266"))
   {
     Serial.println ("MDNS responder started");
   }
-  server.on("/", handleRoot);
-  server.on("/inline", []()
-  {
-    WiFiClient c;
-    if (c.connect("192.168.0.100", 333))
-    {
-      Serial.println ("connected to http://193.11.134.14:333");
-      // Make a HTTP request:
-      c.println ("GET /search?q=arduino HTTP/1.0");
-      c.println ();
-      c.stop ();
-    }
-    else
-    {
-      Serial.println ("connection failed");
-    }
-    server.send(200, "text/plain", "this works as well");
-    
-  });
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial.println("HTTP server started");
+  */
 }
 
-String msg;
 
-void loop(void)
+
+
+void Serial_Read_Data_Block (struct Data_Block * packet)
 {
-  server.handleClient();
-  if (Serial.available() > 0)
+  Serial.readBytes ((char *) &(packet->Type), sizeof (char));
+  Serial.println ("Read type");
+  Serial.readBytes ((char *) &(packet->Value), Data_Block_Value_Size_Byte);
+  Serial.println ("Read value");
+}
+
+void setup()
+{
+  Serial.setTimeout (20000);
+  Serial.begin (115200);
+  delay (10);
+}
+
+
+int WiFiClient_Read_Buffer (WiFiClient * Item, char * Buffer, int Size, char Terminator)
+{
+  int I = 0;
+  while (true)
   {
-    Serial.println (Serial.read ());
-    msg = Serial.readString();
-    Serial.println ("readString");
-    Serial.println (msg);
-    if (msg == "rst")
+    if (I < Size)
     {
-      Serial.println ("execute rst");
-      
+      if (Item->available ())
+      {
+        Buffer [I] = Item->read ();
+        if (Buffer [I] == Terminator)
+        {
+          break;
+        }
+        I = I + 1;
+      }
+      else
+      {
+        break;
+      }
     }
   }
+  return I;
 }
+
+
+void Read_Command (WiFiClient * Item)
+{
+  char Message [30];
+  int Size;
+  Size = WiFiClient_Read_Buffer (Item, Message, 30, '\0');
+  Serial.print ("Message ");
+  Serial.print (Size);
+  Serial.print (" ");
+  Serial.print (Message);
+  Serial.println ();
+  if (strcmp (Message, "set_ip") == 0)
+  {
+    WiFiClient_Read_Buffer (Item, Message, 30, '\0');
+    WiFi.hostByName (Message, Client_Database_IP);
+    Serial.println ("Connecting to: ");
+    Serial.println (Client_Database_IP);
+    Client_Database->connect (Message, 333);
+    Item->print ("\n");
+  }
+}
+
+
+void Connected_Client (WiFiClient * Item)
+{
+    Serial.println ("Client connected.");
+    Put_Client (Item);
+    Item->print ("\nHello client\n");
+    delay (3000);
+    Read_Command (Item);
+    Item->stop ();
+    delay (1);
+    Serial.println ("Client disonnected");
+}
+
+
+
+
+
+void Connected_Database ()
+{
+  if (Serial.available () > 0)
+  {
+    struct Data_Block Packet [1] = {0};
+    Serial_Read_Data_Block (Packet);
+    Serial_Put_Data_Block (Packet);
+    Client_Database->write ((const uint8_t *) Packet, sizeof (struct Data_Block));
+  }
+  else
+  {
+    Serial.println ("No data");
+    Client_Database->print ("No data\n");
+    delay (1000);
+  }
+}
+
+
+
+void Connected ()
+{
+
+  if (server.status ())
+  {
+    if (server.hasClient ())
+    {
+      WiFiClient C = server.available ();
+      Connected_Client (&C);
+    }
+  }
+  else
+  {
+    Serial.println ("Server Begin");
+    server.begin ();
+  }
+  
+  if (Client_Database->connected ())
+  {
+    Connected_Database ();
+  }
+  else
+  {
+    Serial.print ("Reconnect ");
+    Serial.print (Client_Database_IP);
+    Serial.print (":");
+    Serial.println (Client_Database_Port);
+    Client_Database->connect (Client_Database_IP, Client_Database_Port);
+  }
+}
+
+
+
+
+void loop ()
+{
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Connected ();
+  }
+  else
+  {
+    Serial.println ("Connect_WiFi");
+    Connect_WiFi ();
+  }
+}
+
+
+
+
