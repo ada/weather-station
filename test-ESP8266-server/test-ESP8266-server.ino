@@ -18,9 +18,7 @@ struct Data_Block
 
 
 WiFiServer server (8266);
-
 WiFiClient Client_Database [1];
-
 IPAddress Client_Database_IP;
 uint16_t Client_Database_Port = 333;
 
@@ -28,19 +26,22 @@ uint16_t Client_Database_Port = 333;
 
 void Serial_Put_Data_Block (struct Data_Block * Item)
 {
-  Serial.println ("Data_Block");
+  Serial.print ("\nData_Block:\n");
   Serial.print ("Type ");
-  Serial.println (Item->Type);
+  Serial.print (Item->Type);
+  Serial.println ();
   Serial.print ("Value ");
   Serial.write (Item->Value, Data_Block_Value_Size_Byte);
   Serial.println ();
   Serial.print ("Value_Float ");
-  Serial.println (Item->Value_Float);
+  Serial.print (Item->Value_Float);
+  Serial.println ();
   Serial.print ("Value_Int ");
-  Serial.println (Item->Value_Int);
+  Serial.print (Item->Value_Int);
+  Serial.println ();
 }
 
-void Put_Client (WiFiClient * Item)
+void Serial_Put_WiFIClient (WiFiClient * Item)
 {
   Serial.print ("remoteIP: ");
   Serial.println (Item->remoteIP ());
@@ -52,27 +53,29 @@ void Put_Client (WiFiClient * Item)
   Serial.println (Item->localPort ());
 }
 
-void Connect_WiFi ()
+void WiFi_Connect ()
 {
   const char* ssid = "Tenda_27EE90";
   const char* password = "glassspoon";
-  WiFi.begin(ssid, password);
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  while (WiFi.status() != WL_CONNECTED)
+  WiFi.begin (ssid, password);
+  Serial.print ("\nConnecting to ");
+  Serial.print (ssid);
+  Serial.println ();
+  while (WiFi.status () != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.print ("\nWiFi connected\n");
   Serial.print ("IP address: ");
-  Serial.println (WiFi.localIP());
+  Serial.print (WiFi.localIP());
+  Serial.println ();
   Serial.print ("subnetMask: ");
-  Serial.println (WiFi.subnetMask());
+  Serial.print (WiFi.subnetMask());
+  Serial.println ();
   Serial.print ("gatewayIP: ");
-  Serial.println (WiFi.gatewayIP());
+  Serial.print (WiFi.gatewayIP());
+  Serial.println ();
   /*
   if (MDNS.begin ("esp8266"))
   {
@@ -86,17 +89,12 @@ void Connect_WiFi ()
 
 void Serial_Read_Data_Block (struct Data_Block * packet)
 {
+  Serial.print ("\nRead type begin\n");
   Serial.readBytes ((char *) &(packet->Type), sizeof (char));
-  Serial.println ("Read type");
+  Serial.print ("Read type end\n");
+  Serial.print ("Read value begin\n");
   Serial.readBytes ((char *) &(packet->Value), Data_Block_Value_Size_Byte);
-  Serial.println ("Read value");
-}
-
-void setup()
-{
-  Serial.setTimeout (20000);
-  Serial.begin (115200);
-  delay (10);
+  Serial.print ("Read value end\n");
 }
 
 
@@ -131,33 +129,39 @@ void Read_Command (WiFiClient * Item)
   char Message [30];
   int Size;
   Size = WiFiClient_Read_Buffer (Item, Message, 30, '\0');
-  Serial.print ("Message ");
+  Serial.print ("\nMessage ");
   Serial.print (Size);
-  Serial.print (" ");
+  Serial.print ("B ");
   Serial.print (Message);
   Serial.println ();
   if (strcmp (Message, "set_ip") == 0)
   {
-    WiFiClient_Read_Buffer (Item, Message, 30, '\0');
-    WiFi.hostByName (Message, Client_Database_IP);
-    Serial.println ("Connecting to: ");
-    Serial.println (Client_Database_IP);
-    Client_Database->connect (Message, 333);
-    Item->print ("\n");
+    Size = WiFiClient_Read_Buffer (Item, Message, 30, '\0');
+    if (Size > 0 && Size < 30)
+    {
+      WiFi.hostByName (Message, Client_Database_IP);
+      Item->print ("Connecting to: ");
+      Item->print (Client_Database_IP);
+      Item->println ();
+      Serial.print ("Connecting to: ");
+      Serial.print (Client_Database_IP);
+      Serial.println ();
+      Client_Database->connect (Message, 333);
+    }
   }
 }
 
 
 void Connected_Client (WiFiClient * Item)
 {
-    Serial.println ("Client connected.");
-    Put_Client (Item);
+    Serial.print ("\nClient connected.\n");
+    Serial_Put_WiFIClient (Item);
     Item->print ("\nHello client\n");
     delay (3000);
     Read_Command (Item);
     Item->stop ();
     delay (1);
-    Serial.println ("Client disonnected");
+    Serial.print ("Client disonnected\n");
 }
 
 
@@ -175,15 +179,15 @@ void Connected_Database ()
   }
   else
   {
-    Serial.println ("No data");
-    Client_Database->print ("No data\n");
+    Serial.println ("Waiting for UART data.");
+    Client_Database->print ("Waiting for UART data.\n");
     delay (1000);
   }
 }
 
 
 
-void Connected ()
+void WiFi_Connected ()
 {
 
   if (server.status ())
@@ -206,7 +210,7 @@ void Connected ()
   }
   else
   {
-    Serial.print ("Reconnect ");
+    Serial.print ("\nReconnect ");
     Serial.print (Client_Database_IP);
     Serial.print (":");
     Serial.println (Client_Database_Port);
@@ -217,16 +221,26 @@ void Connected ()
 
 
 
+
+
+void setup ()
+{
+  Serial.setTimeout (20000);
+  Serial.begin (115200);
+  delay (10);
+}
+
+
 void loop ()
 {
   if (WiFi.status() == WL_CONNECTED)
   {
-    Connected ();
+    WiFi_Connected ();
   }
   else
   {
     Serial.println ("Connect_WiFi");
-    Connect_WiFi ();
+    WiFi_Connect ();
   }
 }
 
