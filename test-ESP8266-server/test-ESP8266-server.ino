@@ -1,10 +1,10 @@
+#include <WiFiClient.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include <stdio.h>
 #include <string.h>
 
 #define Data_Block_Value_Size_Byte 4
-
-
 struct Data_Block
 {
   char Type;
@@ -16,42 +16,41 @@ struct Data_Block
   };
 };
 
-
-WiFiServer server (8266);
-WiFiClient Client_Database [1];
-IPAddress Client_Database_IP;
-uint16_t Client_Database_Port = 333;
-
-
-
-void Serial_Put_Data_Block (struct Data_Block * Item)
+#define Control_Server_Message_Length 30
+struct Control_Server
 {
-  Serial.print ("\nData_Block:\n");
-  Serial.print ("Type ");
-  Serial.print (Item->Type);
-  Serial.println ();
-  Serial.print ("Value ");
-  Serial.write (Item->Value, Data_Block_Value_Size_Byte);
-  Serial.println ();
-  Serial.print ("Value_Float ");
-  Serial.print (Item->Value_Float);
-  Serial.println ();
-  Serial.print ("Value_Int ");
-  Serial.print (Item->Value_Int);
-  Serial.println ();
+  WiFiServer WiFi_Server = WiFiServer (8266);
+  WiFiClient WiFi_Client [1];
+  char Message [Control_Server_Message_Length + 1] = {'\0'};
+};
+
+struct Database_Connection
+{
+  WiFiClient WiFi_Client [1];
+  IPAddress Address;
+  uint16_t Port = 333;
+};
+
+
+ESP8266WebServer Server_Web (8267);
+struct Database_Connection My_Database_Connection [1];
+struct Control_Server My_Control_Server [1];
+struct Data_Block My_Data_Block [1] = {0};
+
+
+
+void Database_Connection_Serial_Put_Line_Address (struct Database_Connection * Item)
+{
+  Serial.print (Item->Address);
+  Serial.print (":");
+  Serial.println (Item->Port);
 }
 
-void Serial_Put_WiFIClient (WiFiClient * Item)
+void Database_Connection_Connect (struct Database_Connection * Item)
 {
-  Serial.print ("remoteIP: ");
-  Serial.println (Item->remoteIP ());
-  Serial.print ("remotePort: ");
-  Serial.println (Item->remotePort ());
-  Serial.print ("localIP: ");
-  Serial.println (Item->localIP ());
-  Serial.print ("localPort: ");
-  Serial.println (Item->localPort ());
+  My_Database_Connection->WiFi_Client->connect (Item->Address, Item->Port);
 }
+
 
 void WiFi_Connect ()
 {
@@ -84,8 +83,34 @@ void WiFi_Connect ()
   */
 }
 
+void Serial_Put_Data_Block (struct Data_Block * Item)
+{
+  Serial.print ("\nData_Block:\n");
+  Serial.print ("Type ");
+  Serial.print (Item->Type);
+  Serial.println ();
+  Serial.print ("Value ");
+  Serial.write (Item->Value, Data_Block_Value_Size_Byte);
+  Serial.println ();
+  Serial.print ("Value_Float ");
+  Serial.print (Item->Value_Float);
+  Serial.println ();
+  Serial.print ("Value_Int ");
+  Serial.print (Item->Value_Int);
+  Serial.println ();
+}
 
-
+void Serial_Put_WiFIClient (WiFiClient * Item)
+{
+  Serial.print ("remoteIP: ");
+  Serial.println (Item->remoteIP ());
+  Serial.print ("remotePort: ");
+  Serial.println (Item->remotePort ());
+  Serial.print ("localIP: ");
+  Serial.println (Item->localIP ());
+  Serial.print ("localPort: ");
+  Serial.println (Item->localPort ());
+}
 
 void Serial_Read_Data_Block (struct Data_Block * packet)
 {
@@ -97,125 +122,124 @@ void Serial_Read_Data_Block (struct Data_Block * packet)
   Serial.print ("Read value end\n");
 }
 
-
 int WiFiClient_Read_Buffer (WiFiClient * Item, char * Buffer, int Size, char Terminator)
 {
   int I = 0;
   while (true)
   {
-    if (I < Size)
+    if (I >= Size)
     {
-      if (Item->available ())
-      {
-        Buffer [I] = Item->read ();
-        if (Buffer [I] == Terminator)
-        {
-          break;
-        }
-        I = I + 1;
-      }
-      else
-      {
-        break;
-      }
+      break;
     }
+    if (!Item->available ())
+    {
+      break;
+    }
+    Buffer [I] = Item->read ();
+
+    if (Buffer [I] == Terminator)
+    {
+      break;
+    }
+    I = I + 1;
   }
   return I;
 }
 
 
-void Read_Command (WiFiClient * Item)
-{
-  char Message [30];
-  int Size;
-  Size = WiFiClient_Read_Buffer (Item, Message, 30, '\0');
-  Serial.print ("\nMessage ");
-  Serial.print (Size);
-  Serial.print ("B ");
-  Serial.print (Message);
-  Serial.println ();
-  if (strcmp (Message, "set_ip") == 0)
-  {
-    Size = WiFiClient_Read_Buffer (Item, Message, 30, '\0');
-    if (Size > 0 && Size < 30)
-    {
-      WiFi.hostByName (Message, Client_Database_IP);
-      Item->print ("Connecting to: ");
-      Item->print (Client_Database_IP);
-      Item->println ();
-      Serial.print ("Connecting to: ");
-      Serial.print (Client_Database_IP);
-      Serial.println ();
-      Client_Database->connect (Message, 333);
-    }
-  }
-}
-
-
-void Connected_Client (WiFiClient * Item)
-{
-    Serial.print ("\nClient connected.\n");
-    Serial_Put_WiFIClient (Item);
-    Item->print ("\nHello client\n");
-    delay (3000);
-    Read_Command (Item);
-    Item->stop ();
-    delay (1);
-    Serial.print ("Client disonnected\n");
-}
-
-
-
-
-
-void Connected_Database ()
+void Database_Connection_Send_Data_Block (struct Database_Connection * Item)
 {
   if (Serial.available () > 0)
   {
-    struct Data_Block Packet [1] = {0};
-    Serial_Read_Data_Block (Packet);
-    Serial_Put_Data_Block (Packet);
-    Client_Database->write ((const uint8_t *) Packet, sizeof (struct Data_Block));
+    Serial_Read_Data_Block (My_Data_Block);
+    Serial_Put_Data_Block (My_Data_Block);
+    Item->WiFi_Client->write ((const uint8_t *) My_Data_Block, sizeof (struct Data_Block));
   }
   else
   {
     Serial.println ("Waiting for UART data.");
-    Client_Database->print ("Waiting for UART data.\n");
+    Item->WiFi_Client->print ("Waiting for UART data.\n");
     delay (1000);
   }
 }
 
 
+void Control_Server_Read_Message (struct Control_Server * Item)
+{
+  int Size;
+  Size = WiFiClient_Read_Buffer (Item->WiFi_Client, Item->Message, Control_Server_Message_Length, '\0');
+  Serial.print ("\nMessage ");
+  Serial.print (Size);
+  Serial.print ("Bytes:\n");
+  Serial.print (Item->Message);
+  Serial.println ();
+}
+
+
+void Control_Server_Read_Command (Control_Server * Item)
+{
+  Control_Server_Read_Message (Item);
+  if (strcmp (Item->Message, "set_ip") == 0)
+  {
+    Serial.println ("command set_ip");
+    Control_Server_Read_Message (Item);
+    WiFi.hostByName (Item->Message, My_Database_Connection->Address);
+    My_Database_Connection->WiFi_Client->stop ();
+  }
+
+  if (strcmp (Item->Message, "set_port") == 0)
+  {
+    Serial.println ("command set_port");
+    Control_Server_Read_Message (Item);
+    My_Database_Connection->Port = String (Item->Message).toInt ();
+    Serial.println (My_Database_Connection->Port);
+    My_Database_Connection->WiFi_Client->stop ();
+  }
+}
+
+
+
+
 
 void WiFi_Connected ()
 {
+  Server_Web.handleClient();
 
-  if (server.status ())
+  if (My_Control_Server->WiFi_Server.status ())
   {
-    if (server.hasClient ())
+    if (My_Control_Server->WiFi_Server.hasClient ())
     {
-      WiFiClient C = server.available ();
-      Connected_Client (&C);
+      Serial.print ("\nClient connected.\n");
+      My_Control_Server->WiFi_Client [0] = My_Control_Server->WiFi_Server.available ();
+      Serial_Put_WiFIClient (My_Control_Server->WiFi_Client);
+      My_Control_Server->WiFi_Client->print ("\nHello client\n");
+      delay (3000);
+      Control_Server_Read_Command (My_Control_Server);
+      My_Control_Server->WiFi_Client->stop ();
+      delay (1);
+      Serial.print ("Client disonnected\n");
     }
   }
   else
   {
-    Serial.println ("Server Begin");
-    server.begin ();
+    Serial.println ("Server_Control Begin");
+    My_Control_Server->WiFi_Server.begin ();
   }
+
+
   
-  if (Client_Database->connected ())
+  
+  if (My_Database_Connection->WiFi_Client->connected ())
   {
-    Connected_Database ();
+    Database_Connection_Send_Data_Block (My_Database_Connection);
   }
   else
   {
     Serial.print ("\nReconnect ");
-    Serial.print (Client_Database_IP);
-    Serial.print (":");
-    Serial.println (Client_Database_Port);
-    Client_Database->connect (Client_Database_IP, Client_Database_Port);
+    Database_Connection_Serial_Put_Line_Address (My_Database_Connection);
+    Database_Connection_Connect (My_Database_Connection);
   }
+  
 }
 
 
@@ -241,6 +265,55 @@ void loop ()
   {
     Serial.println ("Connect_WiFi");
     WiFi_Connect ();
+    delay (10);
+    
+    Server_Web.on("/", []()
+    {
+      String html;
+      html += "My_Database_Connection->WiFi_Client->status: ";
+      html += My_Database_Connection->WiFi_Client->status () ? "Online" : "Offline";
+      html += "\n";
+      
+      html += "My_Database_Connection->Address: ";
+      html += My_Database_Connection->Address.toString ();
+      html += "\n";
+      
+      html += "My_Database_Connection->Port: ";
+      html += My_Database_Connection->Port;
+      html += "\n";
+      
+      html += "Last Server_Control_Message: ";
+      html += My_Control_Server->Message;
+      html += "\n";
+      
+      html += "Last Data_Block: ";
+      html += "\n";
+      
+      html += "Type: ";
+      html += (int) My_Data_Block->Type;
+      html += "\n";
+      
+      html += "Value: ";
+      for (int I = 0; I < Data_Block_Value_Size_Byte; ++I)
+      {
+        html += (int) My_Data_Block->Value [I];
+        html += " ";
+      }
+      html += "\n";
+      
+      html += "Value_Float: ";
+      html += My_Data_Block->Value_Float;
+      html += "\n";
+      
+      html += "Value_Int: ";
+      html += My_Data_Block->Value_Int;
+      html += "\n";
+      
+      Server_Web.send (200, "text/plain", html);
+    });
+    
+    Serial.println ("Server_Web Begin");
+    Server_Web.begin ();
   }
 }
 
