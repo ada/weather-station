@@ -4,7 +4,7 @@
   </div>
 
   <div class="row text-center">
-    <h1 class="wh1" style="margin:0">23°C</h1>
+    <h1 class="wh1" style="margin:0" ng-bind="air.temperature + '°C'"></h1>
     <p>
       Västerås, Sweden
     </p>
@@ -108,7 +108,7 @@
             <tr><td>Latitude:</td><td ng-bind="device.lat"></td></tr>
             <tr><td>Longitude:</td><td ng-bind="device.lng"></td></tr>
             <tr><td>Adress:</td><td ng-bind="device.addr"></td></tr>
-            <tr><td>Health:</td><td ng-bind="device.health"></td></tr>
+            <tr id="rssi"><td>RSSI:</td><td ng-bind="device.RSSI + 'dB'"></td></tr>
           </table>
         </div>
       </div>

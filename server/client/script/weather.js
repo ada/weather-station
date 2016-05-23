@@ -1,6 +1,8 @@
 app.controller("weather", ['$scope','Restangular', '$location', '$interval', function($scope, Restangular, $location, $interval){
 
 	angular.element(document).ready(function () {
+
+		$scope.createWebSocket("ws://localhost:82/");
 		var lat = 59.6;
 		var lng = 16.54;
 
@@ -51,7 +53,8 @@ app.controller("weather", ['$scope','Restangular', '$location', '$interval', fun
 			health : "Excellent",
 			lat : lat,
 			lng : lng,
-			addr: "NA"
+			addr: "NA",
+			RSSI : 0
 		}
 
   });
@@ -70,5 +73,47 @@ app.controller("weather", ['$scope','Restangular', '$location', '$interval', fun
 		return str;
 	}
 
+	const Kind_RSSI = 120;
+
+	$scope.createWebSocket = function(host){
+		if ("WebSocket" in window)
+    {
+       var ws = new WebSocket(host);
+
+       ws.onopen = function()
+       {
+          console.log("Websocket opened");
+       };
+
+       ws.onmessage = function (evt)
+       {
+          var d = JSON.parse(evt.data);
+          console.log("Websocket data:", d);
+
+					switch (d.Type) {
+						case Kind_RSSI:
+							var delta = $scope.device.RSSI - d.Value;
+							if(delta > 0)
+								$("#rssi").addClass("positive").delay(1000).removeClass("positive");
+							else
+								$("#rssi").addClass("negative").delay(1000).removeClass("negative");
+							$scope.device.RSSI = d.Value;
+							break;
+						default:
+							$scope.air.temperature = d.Value;
+					}
+       };
+
+       ws.onclose = function()
+       {
+          console.log("Websocket closed");
+       };
+    }
+
+    else
+    {
+       console.log("WebSocket NOT supported by your Browser!");
+    }
+	}
 
 }]);
