@@ -6,6 +6,8 @@
 #define Packet_Kind_Response 'R'
 #define Packet_Kind_Float 'f'
 #define Packet_Kind_Int 'i'
+#define Packet_Kind_A0 6
+#define Packet_Kind_A1 7
 
 #define Packet_Size 16
 #define Packet_Message_Size 15
