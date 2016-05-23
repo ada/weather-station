@@ -1,30 +1,32 @@
 #ifndef Packets_H
 #define Packets_H
 
+#define Packet_Kind_Test 1
+#define Packet_Kind_A0 2
+#define Packet_Kind_A1 3
+#define Packet_Kind_RSSI 4
+#define Packet_Kind_UART_Ready 5
+#define Packet_Kind_Reconnect 6
+#define Packet_Kind_WiFi_Connect 7
 
-#define Packet_Kind_Message 'M'
-#define Packet_Kind_Response 'R'
-#define Packet_Kind_Float 'f'
-#define Packet_Kind_Int 'i'
-#define Packet_Kind_A0 6
-#define Packet_Kind_A1 7
-
-#define Packet_Size 16
-#define Packet_Message_Size 15
+#define Packet_Size 12
+#define Packet_Message_Size 8
 
 struct Packet
 {
   union
   {
-    char Data [Packet_Size];
+    uint8_t Data [Packet_Size];
     struct
     {
-      char Kind;
+      uint8_t Kind_1;
+      uint8_t Kind_2;
+      uint8_t Kind_3;
+      uint8_t Kind_4;
       union
       {
-        char Message [Packet_Message_Size];
-        int Value_Int;
-        float Value_Float;
+        uint8_t Message [Packet_Message_Size];
+        int32_t Value_Int;
       };
     };
   };
