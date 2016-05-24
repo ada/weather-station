@@ -24,26 +24,42 @@ struct Database_Connection
 WiFiServer Server_Web (8267);
 struct Database_Connection My_Database_Connection [1];
 struct Control_Server My_Control_Server [1];
-struct Packet Response_Packet [1] = {0};
 
-#define Packet_Array_Count 255
+#define Packet_Array_Count 256
 struct Packet Packet_Array [Packet_Array_Count] = {0};
 
 String HTML_Response;
 
+void Send_Message (char * Value)
+{
+  
+}
+
 void Read_UART ()
 {
-  uint8_t Kind_1, Kind_2, Kind_3, Kind_4;
-  if (Serial.available () == Packet_Size)
+  if (Serial.available () >= 4)
   {
+    uint8_t Flag_1, Flag_2, CRC, Kind_1;
+    Flag_1 = Serial.read ();
+    Flag_2 = Serial.read ();
+    CRC = Serial.read ();
     Kind_1 = Serial.read ();
-    Kind_2 = Serial.read ();
-    Kind_3 = Serial.read ();
-    Kind_4 = Serial.read ();
-    Serial.readBytes ((uint8_t *) &Packet_Array[Kind_1].Message, Packet_Message_Size);
+    if (Flag_1 == Packet_Header_Flag_1 && Flag_2 == Packet_Header_Flag_2)
+    {
+      Serial.readBytes ((uint8_t *) &Packet_Array[Kind_1].Message, Packet_Message_Size);
+      Serial.println ("Packet recieved");
+    }
+    else
+    {
+      while (Serial.available ()) {char C = Serial.read ();}
+      Serial.println ("Recognised no packet.");
+      Serial.write ((uint8_t *) Packet_Array + Packet_Kind_UART_Resend, Packet_Size);
+    }
   }
-  else if (Serial.available () > Packet_Size)
-  {}
+  else
+  {
+    Serial.write ((uint8_t *) Packet_Array + Packet_Kind_UART_Ready, Packet_Size);
+  }
 }
 
 void Read_RSSI ()
@@ -57,26 +73,24 @@ void WiFi_Connect ()
   const char* ssid = "home";
   const char* password = "mynameis";
   WiFi.begin (ssid, password);
-  //Serial.print ("\nConnecting to ");
-  //Serial.print (ssid);
-  //Serial.println ();
+  Serial.print ("\nConnecting to ");
+  Serial.print (ssid);
+  Serial.println ();
   while (WiFi.status () != WL_CONNECTED)
   {
-    delay(500);
-    Response_Packet->Kind_1 = Packet_Kind_WiFi_Connect;
-    memcpy (Response_Packet->Message, "WiFiCon\n", Packet_Message_Size);
-    Serial.write (Response_Packet->Data, Packet_Size);
+    delay (500);
+    Serial.print (".");
   }
-  //Serial.print ("\nWiFi connected\n");
-  //Serial.print ("IP address: ");
-  //Serial.print (WiFi.localIP());
-  //Serial.println ();
-  //Serial.print ("subnetMask: ");
-  //Serial.print (WiFi.subnetMask());
-  //Serial.println ();
-  //Serial.print ("gatewayIP: ");
-  //Serial.print (WiFi.gatewayIP());
-  //Serial.println ();
+  Serial.print ("\nWiFi connected\n");
+  Serial.print ("IP address: ");
+  Serial.print (WiFi.localIP());
+  Serial.println ();
+  Serial.print ("subnetMask: ");
+  Serial.print (WiFi.subnetMask());
+  Serial.println ();
+  Serial.print ("gatewayIP: ");
+  Serial.print (WiFi.gatewayIP());
+  Serial.println ();
   /*
   if (MDNS.begin ("esp8266"))
   {
@@ -131,7 +145,6 @@ void Control_Server_Read_Command (Control_Server * Item)
 
 void WiFi_Connected ()
 {
-
   WiFiClient Server_Web_Client = Server_Web.available();
   Server_Web_Client.flush ();
   if (Server_Web_Client)
@@ -143,12 +156,6 @@ void WiFi_Connected ()
     for (int I = 0; I < Packet_Array_Count; I = I + 1)
     {
       HTML_Response += Packet_Array [I].Kind_1;
-      HTML_Response += ',';
-      HTML_Response += Packet_Array [I].Kind_2;
-      HTML_Response += ',';
-      HTML_Response+= Packet_Array [I].Kind_3;
-      HTML_Response += ',';
-      HTML_Response += Packet_Array [I].Kind_4;
       HTML_Response += ',';
       HTML_Response += Packet_Array [I].Value_Int;
       HTML_Response += "\r\n";
@@ -167,6 +174,7 @@ void WiFi_Connected ()
       My_Control_Server->WiFi_Client [0] = My_Control_Server->WiFi_Server.available ();
       My_Control_Server->WiFi_Client->print ("\nHello client says server\n");
       Control_Server_Read_Command (My_Control_Server);
+      My_Control_Server->WiFi_Client->flush ();
       My_Control_Server->WiFi_Client->stop ();
     }
   }
@@ -195,9 +203,9 @@ void WiFi_Connected ()
   }
   else
   {
-    Response_Packet->Kind_1 = Packet_Kind_Reconnect;
-    memcpy (Response_Packet->Message, "DB_CON.\n", Packet_Message_Size);
-    Serial.write (Response_Packet->Data, Packet_Size);
+    Serial.print ("Connecting to database: ");
+    Serial.print (My_Database_Connection->Address);
+    Serial.println ();
     My_Database_Connection->WiFi_Client->connect (My_Database_Connection->Address, My_Database_Connection->Port);
   }
 
@@ -214,13 +222,12 @@ void setup ()
   delay (10);
   for (int I = 0; I < Packet_Array_Count; I = I + 1)
   {
+    Packet_Array [I].Header_Flag_1 = Packet_Header_Flag_1;
+    Packet_Array [I].Header_Flag_2 = Packet_Header_Flag_2;
     Packet_Array [I].Kind_1 = I;
+    Packet_Array [I].Value_Int = 0;
   }
-  Packet_Array [255].Kind_1 = 255;
-  Packet_Array [255].Kind_2 = 255;
-  Packet_Array [255].Kind_3 = 255;
-  Packet_Array [255].Kind_4 = 255;
-  Packet_Array [255].Value_Int = 255;
+  Packet_Array [Packet_Kind_Test].Value_Int = 255;
   HTML_Response.reserve (10000);
 }
 
