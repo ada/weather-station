@@ -1,8 +1,8 @@
 void setup() {
   // put your setup code here, to run once:
  Serial.begin(115200);
- Serial2.begin(9600); 
- while(!Serial || !Serial2);
+ Serial1.begin(9600); 
+ while(!Serial || !Serial1);
 }
 
 void loop() {
@@ -25,18 +25,21 @@ void loop() {
       Serial2.println(command);
     Serial2.flush();
   }*/
-  
+
+  delay(500);
 }
 
 int readCO2()
 {
 
-  byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+  uint8_t cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   // command to ask for data
-  char response[9] ={0}; // for answer
+  uint8_t response[9] ={0}; // for answer
 
-  Serial2.write(cmd, 9); //request PPM CO2
-  Serial2.readBytes(response, 9);
+  //while (Serial1.available ()) {char C = Serial1.read ();}
+  //Serial1.flush ();
+  Serial1.write (cmd, 9); //request PPM CO2
+  Serial1.readBytes(response, 9);
 
   for(int i=0; i<9; i++)
   {
@@ -44,20 +47,12 @@ int readCO2()
     Serial.print(" ");
   }
   Serial.println();
-  /*if (response[0] != 0xFF)
+
+  if (response[0] == 0xFF && response[1] == 0x86)
   {
-    Serial.println("Wrong starting byte from co2 sensor!");
-    return -1;
+    //Gas concentration= high level * 256 + low level
+    return ((int)response[2] * 256) + (int)response[3];
   }
-
-  if (response[1] != 0x86)
-  {
-    Serial.println("Wrong command from co2 sensor!");
-    return -1;
-  }*/
-
-  int responseHigh = (int) response[2];
-  int responseLow = (int) response[3];
-  int ppm = (256 * responseHigh) + responseLow;
-  return ppm;
+  
+  return -1;
 }
