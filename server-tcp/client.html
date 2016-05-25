@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+
+      <script type="text/javascript">
+         function WebSocketTest()
+         {
+            if ("WebSocket" in window)
+            {
+               var ws = new WebSocket("ws://localhost:82/");
+
+               ws.onopen = function()
+               {
+                  console.log("Opened");
+               };
+
+               ws.onmessage = function (evt)
+               {
+                  var received_msg = evt.data;
+                  console.log("Received:", received_msg);
+               };
+
+               ws.onclose = function()
+               {
+                  console.log("Connection is closed...");
+               };
+            }
+
+            else
+            {
+               console.log("WebSocket NOT supported by your Browser!");
+            }
+         }
+      </script>
+
+   </head>
+   <body>
+      <div id="sse">
+         <a href="javascript:WebSocketTest()">Run WebSocket</a>
+      </div>
+   </body>
+</html>
