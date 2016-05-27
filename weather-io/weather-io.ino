@@ -7,7 +7,7 @@
 TinyGPSPlus gps;
 
 
-#define DEBUG 1
+//#define DEBUG 1
 #define PIN_DHT11_0 30
 #define PIN_DHT11_1 31
 #define PIN_MQ2_0 A0
@@ -150,8 +150,7 @@ void loop() {
   Serial.print("Bluesky_Rain_Drop_1_Delta: ");   Serial.println(w.Bluesky_Rain_Drop_Delta[1]);
   Serial.print("Neo6mGPS_Info_Satelite_Count: ");Serial.println (w.Neo6mGPS_Info_Satelite_Count);
   Serial.print("Neo6mGPS_Time_Centisecond: ");   Serial.println (w.Neo6mGPS_Time_Centisecond);
-  Serial.print("Neo6mGPS_Time_Second: ");        Serial.println (w.0
-  );
+  Serial.print("Neo6mGPS_Time_Second: ");        Serial.println (w.Neo6mGPS_Time_Second);
   Serial.print("Neo6mGPS_Time_Minute: ");        Serial.println (w.Neo6mGPS_Time_Minute);
   Serial.print("Neo6mGPS_Time_Hour: ");          Serial.println (w.Neo6mGPS_Time_Hour);
   Serial.print("Neo6mGPS_Time_Day: ");           Serial.println (w.Neo6mGPS_Time_Day);
@@ -161,6 +160,36 @@ void loop() {
   Serial.print("Neo6mGPS_Location_Longitude: "); Serial.println (w.Neo6mGPS_Location_Longitude);
   Serial.print("Neo6mGPS_Altitude_Meter: ");     Serial.println (w.Neo6mGPS_Altitude_Meter);
   Serial.println("---");
+  #else
+  Serial.print("");    Serial.print(w.DHT11_Temperature[0]);
+  Serial.print(",");       Serial.print(w.DHT11_Humidity[0]);
+  Serial.print(",");    Serial.print(w.DHT11_Temperature[1]);
+  Serial.print(",");       Serial.print(w.DHT11_Humidity[1]);
+  Serial.print(",");        Serial.print(w.BMP085_Pressure);
+  Serial.print(",");     Serial.print(w.BMP085_Temperature);
+  Serial.print(",");        Serial.print(w.BMP085_Altitude);
+  Serial.print(",");    Serial.print(w.BMP085_Pressure_Raw);
+  Serial.print(","); Serial.print(w.BMP085_Temperature_Raw);
+  Serial.print(",");              Serial.print(w.MQ2_Raw[0]);
+  Serial.print(",");              Serial.print(w.MQ2_Raw[1]);
+  Serial.print(",");              Serial.print(w.MQ4_Raw[0]);
+  Serial.print(",");                   Serial.print(w.MQ4_Raw[1]);
+  Serial.print(",");         Serial.print(w.Bluesky_Rain_Drop[0]);
+  Serial.print(",");         Serial.print(w.Bluesky_Rain_Drop[1]);
+  Serial.print(",");   Serial.print(w.Bluesky_Rain_Drop_Delta[0]);
+  Serial.print(",");   Serial.print(w.Bluesky_Rain_Drop_Delta[1]);
+  Serial.print(",");Serial.print (w.Neo6mGPS_Info_Satelite_Count);
+  Serial.print(",");   Serial.print (w.Neo6mGPS_Time_Centisecond);
+  Serial.print(",");        Serial.print (w.Neo6mGPS_Time_Second);
+  Serial.print(",");        Serial.print (w.Neo6mGPS_Time_Minute);
+  Serial.print(",");          Serial.print (w.Neo6mGPS_Time_Hour);
+  Serial.print(",");           Serial.print (w.Neo6mGPS_Time_Day);
+  Serial.print(",");         Serial.print (w.Neo6mGPS_Time_Month);
+  Serial.print(",");          Serial.print (w.Neo6mGPS_Time_Year);
+  Serial.print(",");  Serial.print (w.Neo6mGPS_Location_Latidude);
+  Serial.print(","); Serial.print (w.Neo6mGPS_Location_Longitude);
+  Serial.print(",");     Serial.print (w.Neo6mGPS_Altitude_Meter);
+  Serial.println ();
   #endif
   
   delay(1000);

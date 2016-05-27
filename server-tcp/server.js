@@ -1,20 +1,56 @@
 var net = require('net');
 var binary = require('binary');
+var serialport = require('serialport');
 var WebSocketServer = require('ws').Server;
 var HOST = '127.0.0.1';
 var PORT = 81;
 var vars;
+var SerialPort = serialport.SerialPort;
 
+// Web socket Server
 var wss = new WebSocketServer({ port: 82 });
 wss.on('connection', function connection(ws) {
   ws.send(JSON.stringify(vars));
 });
 
-//var Database = {};
+// Connect to MCU
+serialport.list(function (err, ports) {
+  ports.forEach(function(port) {
+    console.log(port.comName);
+  });
+});
+
+var myPort = new SerialPort("/dev/cu.usbmodem1411", {
+   baudRate: 115200,
+   parser: serialport.parsers.readline("\n")
+ });
+ myPort.on('open', function showPortOpen() {
+   console.log('port open. Data rate: ' + myPort.options.baudRate);
+});
+ myPort.on('data', function sendSerialData(data) {
+   console.log(data);
+   wss.clients.forEach(function each(client) {
+     //client.send(JSON.stringify(vars));
+     client.send(data);
+   });
+});
+ myPort.on('close', function showPortClose() {
+   console.log('port closed.');
+});
+ myPort.on('error', function showError(error) {
+   console.log('Serial port error: ' + error);
+});
+
+
+
+
+
+
+
 
 const server = net.createServer(function (socket){
   socket.pipe(socket).on('data', function (data) {
-    var buf = new Buffer(data);
+    /*var buf = new Buffer(data);
     vars = binary.parse(buf)
         .word8('Kind_1')
         .word8('Kind_2')
@@ -22,13 +58,10 @@ const server = net.createServer(function (socket){
         .word8('Kind_4')
         .word32ls('Value_Int')
         .vars;
-
-    //Database [vars.type] = vars.Value;
-
-
+*/
 
     wss.clients.forEach(function each(client) {
-      client.send(JSON.stringify(vars));
+      //client.send(JSON.stringify(vars));
     });
     console.log(socketInfo(socket), vars);
   })
@@ -46,7 +79,7 @@ const server = net.createServer(function (socket){
   console.log(err);
 })
 
-.listen(PORT, "0.0.0.0", function () {
+.listen(PORT, HOST, function () {
   console.log('TCP Server listening on ' + server.address().address +':'+
       server.address().port);
 });

@@ -17,7 +17,37 @@
                ws.onmessage = function (evt)
                {
                   var received_msg = evt.data;
-                  console.log("Received:", received_msg);
+                  //console.log("Received:", received_msg);
+                  var arr = evt.data.split(',');
+
+                  var air = {
+              			temperature: arr[5],
+              			humidity:arr[1],
+              			pressure : arr[4],
+              			methane : arr[9],
+              			buthane : arr[11],
+              			co2 : arr[10] // Not valid
+              		}
+
+                  var rain = {
+                    delta : arr[15]
+                  }
+
+                  var GPS = {
+                    satellites : arr[17],
+                    lat : arr[25],
+                    lng : arr[26],
+                    altitude : arr[27]
+                  }
+                  var device = {
+              			id : "WS1",
+              			health : "Excellent",
+              			addr: "NA",
+              			RSSI : 0,
+              		}
+
+
+                  console.log(air, rain, GPS, device);
                };
 
                ws.onclose = function()

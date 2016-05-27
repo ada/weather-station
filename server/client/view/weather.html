@@ -1,10 +1,11 @@
   <div class="container-fluid container-tablet">
+
   <div class="row text-center">
     <p style="text-transform: capitalize;">{{currentDateTime | amDateFormat:'dddd, Do MMMM YYYY, HH:mm:ss'}}</span>
   </div>
 
   <div class="row text-center">
-    <h1 class="wh1" style="margin:0" ng-bind="air.temperature + '°C'"></h1>
+    <h1 class="wh1" style="margin:0" ng-bind="w[wid.BMP085_Temperature] + '°C'"></h1>
     <p>
       Västerås, Sweden
     </p>
@@ -20,12 +21,12 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Temperatur:</td><td ng-bind="air.temperature + '°C'"></td></tr>
-            <tr><td>Luftfuktighet:</td><td ng-bind="air.humidity + '%'"></td></tr>
-            <tr><td>Lufttryck:</td><td ng-bind="air.pressure + 'Pa'"></td></tr>
-            <tr><td>Methane:</td><td ng-bind="air.methane + 'PPM'"></td></tr>
-            <tr><td>Buthane:</td><td ng-bind="air.buthane + 'PPM'"></td></tr>
-            <tr><td>CO<sub>2</sub>:</td><td ng-bind="air.co2 + 'PPM'"></td></tr>
+            <tr><td>Temperatur:</td><td ng-bind="w[wid.BMP085_Temperature] + '°C'"></td></tr>
+            <tr><td>Luftfuktighet:</td><td ng-bind="w[wid.DHT11_Humidity_0] + '%'"></td></tr>
+            <tr><td>Lufttryck:</td><td ng-bind="w[wid.BMP085_Pressure] + 'Pa'"></td></tr>
+            <tr><td>Methane:</td><td ng-bind="w[wid.MQ2_Raw_0] + 'PPM'"></td></tr>
+            <tr><td>Buthane:</td><td ng-bind="w[wid.MQ4_Raw_0] + 'PPM'"></td></tr>
+            <tr><td>CO<sub>2</sub>:</td><td ng-bind="w[wid.MQ4_Raw_1] + 'PPM'"></td></tr>
           </table>
         </div>
       </div>
@@ -38,7 +39,7 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Just nu:</td><td ng-bind="+'mm/s'"></td></tr>
+            <tr><td>Just nu:</td><td ng-bind="w[wid.Bluesky_Rain_Drop_Delta_0]+'mm/s'"></td></tr>
             <tr><td>Senaste timmen:</td><td ng-bind="+'mm'"></td></tr>
             <tr><td>Senaste dygn:</td><td ng-bind="+'mm'"></td></tr>
           </table>
@@ -104,11 +105,13 @@
         </div>
         <div class="panel-body no-padding">
           <table class="table tablew">
-            <tr><td>Identitet:</td><td ng-bind="device.id"></td></tr>
-            <tr><td>Latitude:</td><td ng-bind="device.lat"></td></tr>
-            <tr><td>Longitude:</td><td ng-bind="device.lng"></td></tr>
-            <tr><td>Adress:</td><td ng-bind="device.addr"></td></tr>
-            <tr id="rssi"><td>RSSI:</td><td ng-bind="device.RSSI + 'dB'"></td></tr>
+            <tr><td>Identitet:</td><td ng-bind="'WS1'"></td></tr>
+            <tr><td>Latitude:</td><td ng-bind="w[wid.Neo6mGPS_Location_Latidude]"></td></tr>
+            <tr><td>Longitude:</td><td ng-bind="w[wid.Neo6mGPS_Location_Longitude]"></td></tr>
+            <tr><td>Altitude:</td><td ng-bind="w[wid.Neo6mGPS_Altitude_Meter]"></td></tr>
+            <tr><td>Satellites:</td><td ng-bind="w[wid.Neo6mGPS_Info_Satelite_Count]"></td></tr>
+            <tr><td>Adress:</td><td ng-bind="'127.0.0.1:82'"></td></tr>
+            <tr id="rssi"><td>RSSI:</td><td ng-bind="device.RSSI + '-NA dB'"></td></tr>
           </table>
         </div>
       </div>
