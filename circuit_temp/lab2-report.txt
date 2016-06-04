@@ -1,0 +1,3 @@
+Zener diode change temperature 2mV/1celsius.
+Standard deviation from diode voltage is around 1mV to 2mV.
+Precision is then +/- 1 celsius.
